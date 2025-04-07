@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
 
-const { MONGO_ID, MONGO_PASSWORD, NODE_ENV, MONGODB_URI } = process.env;
-const MONGO_URL = `mongodb://${MONGO_ID}:${MONGO_PASSWORD}@34.196.33.236:27017/admin`;
-console.log(MONGO_URL);
+const { NODE_ENV, MONGODB_URI } = process.env;
+
 const connect = () => {
   if (NODE_ENV !== 'production') {
     mongoose.set('debug', true);
   }
-  mongoose.connect(MONGO_URL, {
-    dbName: MONGODB_URI.split('/').pop(),
+  mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
   }).then(() => {
     console.log("몽고디비 연결 성공");
