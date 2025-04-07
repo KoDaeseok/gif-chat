@@ -1,0 +1,269 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+  <h1>한컴AI아카데미 채팅방</h1>
+  <fieldset class="room-list">
+    <legend>채팅방 목록</legend>
+    <div class="table-responsive">
+      <table>
+        <thead>
+        <tr>
+          <th>방 제목</th>
+          <th>종류</th>
+          <th>허용 인원</th>
+          <th>방장</th>
+          <th>입장</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for room in rooms %}
+          <tr data-id="{{room._id}}">
+            <td class="room-title">{{room.title}}</td>
+            <td class="room-type">{{'비밀방' if room.password else '공개방'}}</td>
+            <td class="room-max">{{room.max}}</td>
+            <td class="room-owner">{{room.owner}}</td>
+            <td class="room-join">
+              <button
+                data-password="{{'true' if room.password else 'false'}}"
+                data-id="{{room._id}}"
+                class="join-btn"
+              >입장
+              </button>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="error-message">{{error}}</div>
+    <div class="create-room-link">
+      <a href="/room" class="create-btn">채팅방 생성</a>
+    </div>
+  </fieldset>
+</div>
+
+<style>
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.room-list {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #333;
+}
+
+tr:hover {
+  background-color: #f9f9f9;
+}
+
+.join-btn {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.join-btn:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: #ff0000;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.create-room-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.create-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #2196F3;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.create-btn:hover {
+  background-color: #1976D2;
+}
+
+/* 반응형 디자인 */
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  .room-title {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .join-btn {
+    padding: 6px 12px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  .room-list {
+    padding: 10px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 6px;
+  }
+
+  .room-type, .room-max {
+    display: none;
+  }
+
+  .join-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
+</style>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io.connect('/room', {
+    path: '/socket.io'
+  });
+
+  socket.on('newRoom', function (data) {
+    const tr = document.createElement('tr');
+    tr.dataset.id = data._id;
+    
+    const titleTd = document.createElement('td');
+    titleTd.className = 'room-title';
+    titleTd.textContent = data.title;
+    tr.appendChild(titleTd);
+    
+    const typeTd = document.createElement('td');
+    typeTd.className = 'room-type';
+    typeTd.textContent = data.password ? '비밀방' : '공개방';
+    tr.appendChild(typeTd);
+    
+    const maxTd = document.createElement('td');
+    maxTd.className = 'room-max';
+    maxTd.textContent = data.max;
+    tr.appendChild(maxTd);
+    
+    const ownerTd = document.createElement('td');
+    ownerTd.className = 'room-owner';
+    ownerTd.textContent = data.owner;
+    tr.appendChild(ownerTd);
+    
+    const joinTd = document.createElement('td');
+    joinTd.className = 'room-join';
+    const button = document.createElement('button');
+    button.className = 'join-btn';
+    button.textContent = '입장';
+    button.dataset.password = data.password ? 'true' : 'false';
+    button.dataset.id = data._id;
+    button.addEventListener('click', addBtnEvent);
+    joinTd.appendChild(button);
+    tr.appendChild(joinTd);
+    
+    document.querySelector('table tbody').appendChild(tr);
+  });
+
+  socket.on('removeRoom', function (data) {
+    document.querySelectorAll('tbody tr').forEach(function (tr) {
+      if (tr.dataset.id === data) {
+        tr.parentNode.removeChild(tr);
+      }
+    });
+  });
+
+  function addBtnEvent(e) {
+    const username = prompt('사용자 이름을 입력하세요');
+    if (!username || username.trim().length === 0) {
+      alert('사용자 이름을 입력해주세요');
+      return;
+    }
+    
+    if (e.target.dataset.password === 'true') {
+      const password = prompt('비밀번호를 입력하세요');
+      location.href = '/room/' + e.target.dataset.id + '?password=' + password + '&username=' + encodeURIComponent(username);
+    } else {
+      location.href = '/room/' + e.target.dataset.id + '?username=' + encodeURIComponent(username);
+    }
+  }
+
+  document.querySelectorAll('.join-btn').forEach(function (btn) {
+    btn.addEventListener('click', addBtnEvent);
+  });
+</script>
+{% endblock %}
+
+{% block script %}
+<script>
+  window.onload = () => {
+    if (new URL(location.href).searchParams.get('error')) {
+      alert(new URL(location.href).searchParams.get('error'));
+    }
+  };
+</script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+  <h1>한컴AI아카데미 채팅방</h1>
+  <fieldset class="create-room-form">
+    <legend>채팅방 생성</legend>
+    <form action="/room" method="post">
+      <div class="form-group">
+        <input type="text" name="title" placeholder="방 제목" required>
+      </div>
+      <div class="form-group">
+        <input type="text" name="owner" placeholder="방장 이름" required>
+      </div>
+      <div class="form-group">
+        <input type="number" name="max" placeholder="수용 인원(최소 2명)" min="2" value="10" required>
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" placeholder="비밀번호(없으면 공개방)">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="create-btn">생성</button>
+      </div>
+    </form>
+  </fieldset>
+</div>
+
+<style>
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.create-room-form {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 30px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.create-room-form legend {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+  padding: 0 10px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+  outline: none;
+}
+
+.create-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.create-btn:hover {
+  background-color: #1976D2;
+}
+
+/* 반응형 디자인 */
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .create-room-form {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+
+  .create-room-form {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  .create-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+}
+</style>
+{% endblock %}
