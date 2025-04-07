@@ -34,6 +34,7 @@ exports.createRoom = async (req, res, next) => {
       max: req.body.max,
       owner: req.body.owner,
       password: req.body.password,
+      deleted: false
     });
     
     console.log('생성된 방 정보:', newRoom);
@@ -56,10 +57,7 @@ exports.createRoom = async (req, res, next) => {
 
 exports.enterRoom = async (req, res, next) => {
   try {
-    const room = await Room.findOne({ 
-      _id: req.params.id,
-      deleted: { $ne: true }
-    });
+    const room = await Room.findOne({ _id: req.params.id });
     if (!room) {
       return res.redirect('/?error=존재하지 않는 방입니다.');
     }
